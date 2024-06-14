@@ -272,7 +272,7 @@ const claimGame = (bearer,gameId,points) =>
     });
 (async () => {
 
-  const query = 'query_id=AAH6LDF-AAAAAPosMX5tVfcE&user=%7B%22id%22%3A2117151994%2C%22first_name%22%3A%22Aku%20Aidrop%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22akuairdrop%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1715991570&hash=e288d869a13e14da9bc877d68c6240f7c81ba89be6f1758361942b031d460fb4'
+  const query = ''
 
     while (true) {  
     try{
