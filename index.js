@@ -330,9 +330,8 @@ const dailyRewards = (bearer) =>
     const readFileToJSON = (path) => {
         return JSON.parse(fs.readFileSync(path, "utf8"));
       };
-      let username;
 (async () => {
-
+  // var username;
     const queryList = readFileToJSON("./blum.json");
     const twisters = new Twisters();
 
@@ -348,23 +347,23 @@ const dailyRewards = (bearer) =>
                     // get new token and replace old token on file
                     const refreshToken = await RefreshToken(bearer)
                     const userDetails = await userCheck(refreshToken.refresh)
-                    username = userDetails.username
+                    var username = userDetails.username
                   
                   const checkBalanceClaim = await CheckBalanceClaim(refreshToken.refresh)
-                  // console.log(checkBalanceClaim)
-                  const dailyrewards = await dailyRewards(refreshToken.refresh)
-                  if(dailyrewards == 'OK'){
-                    twisters.put(username, {
-                      text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Success claim daily rewards...`});
-                  }else if(dailyrewards.message == 'same day' || dailyrewards.message == 'Not Found'){
-                    twisters.put(username, {
-                      text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Failed claim daily rewards...`});
-                  }else{
-                    twisters.put(username, {
-                      text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${dailyrewards.message}...`});
-                  }
                     const clickClaim = await ClickClaim(refreshToken.refresh)
                     if(clickClaim.message){
+                      // console.log(checkBalanceClaim)
+                      const dailyrewards = await dailyRewards(refreshToken.refresh)
+                      if(dailyrewards == 'OK'){
+                        twisters.put(username, {
+                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Success claim daily rewards...`});
+                      }else if(dailyrewards.message == 'same day' || dailyrewards.message == 'Not Found'){
+                        twisters.put(username, {
+                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Failed claim daily rewards...`});
+                      }else{
+                        twisters.put(username, {
+                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${dailyrewards.message}...`});
+                      }
                       // console.log("Failed claim balance : "+clickClaim.message+"...")
                       if(clickClaim.message == 'Need to start farm'){
                         // console.log("Cant claim farm balance, "+clickClaim.message+"...")
