@@ -492,12 +492,12 @@ function date_format(unix_timestamp,format){
   // var username;
     const queryList = readFileToJSON("./blum.json");
     const twisters = new Twisters();
-    let startTasks;
-    let claimTasks
-    let idTask;
-    let statusTask;
-    let titleTask;
-    let kindTask;
+    // let startTasks;
+    // let claimTasks
+    // let idTask;
+    // let statusTask;
+    // let titleTask;
+    // let kindTask;
 
     while (true) {  
         await Promise.all(
@@ -545,66 +545,72 @@ function date_format(unix_timestamp,format){
                       }
 
                       const getTasks = await getTask(refreshToken.refresh,randomUserAgent)
-                      // console.log(getTasks)
-                        getTasks.forEach(async (element) => {
-                          idTask = element.id
-                          statusTask = element.status
-                          titleTask = element.title
-                          kindTask = element.kind
-                          // if(kindTask === 'QUEST'){
+                      // for (let index = 0; index < getTasks[0].length; index++) {
 
-                          // }else{
+                      // }
+                        getTasks.forEach(async (main) => {
+                          const taskList = main.tasks
+                          // console.log(taskList)
+                          taskList.forEach(async (element) => {
+                            // console.log(element)
+                            const idTask = element.id
+                            const statusTask = element.status
+                            const titleTask = element.title
+                            const kindTask = element.kind
+                            // if(kindTask === 'QUEST'){
 
-                          // }
-                          if(statusTask.match('CLAIMED') || statusTask.match('FINISHED')){
+                            // }else{
+
+                            // }
+                            if(statusTask === 'CLAIMED' || statusTask === 'FINISHED'){
+                                  // twisters.put(username, {
+                                  //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${statusTask}`});
+                            }else if(statusTask === 'NOT_STARTED'){
+                                const startTasks = await startTask(refreshToken.refresh,idTask,randomUserAgent)
+                                await delay(500)
+                                      if(startTasks.status === 'READY_FOR_CLAIM'){
+                                        const claimTasks = await claimTask(refreshToken.refresh,idTask,randomUserAgent)
+                                          if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
+                                            twisters.put(username, {
+                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
+                                          }else if(claimTasks.type === 'PROGRESS_TARGET'){
+                                            twisters.put(username, {
+                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
+                                          }else{
+                                            twisters.put(username, {
+                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task : ${titleTask} | ${idTask} | ${statusTask}`});
+                                          }
+                                      }else if(startTasks.message === 'Task type does not support start'){
+                                        // twisters.put(username, {
+                                        //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${startTasks.message} | ${statusTask}`});
+                                      }else{
+                                        twisters.put(username, {
+                                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task NOT_STARTED Error : ${titleTask} | ${idTask} | ${statusTask}`});
+                                      }
+                            }else if(statusTask === 'STARTED' || statusTask === 'READY_FOR_CLAIM'){
+                              const claimTasks = await claimTask(refreshToken.refresh,idTask,randomUserAgent)
+                              // console.log(`claimTasks 2 :`,claimTasks)
+                              if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
+                                twisters.put(username, {
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
+                              }else if(claimTasks.type === 'PROGRESS_TARGET'){
+                                twisters.put(username, {
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
+                              }else if(claimTasks.message === 'Task is not done'){
                                 // twisters.put(username, {
-                                //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${statusTask}`});
-                          }else if(statusTask.match('NOT_STARTED')){
-                              startTasks = await startTask(refreshToken.refresh,idTask,randomUserAgent)
-                              await delay(500)
-                                    if(startTasks.status === 'READY_FOR_CLAIM'){
-                                      claimTasks = await claimTask(refreshToken.refresh,idTask,randomUserAgent)
-                                        if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
-                                          twisters.put(username, {
-                                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
-                                        }else if(claimTasks.type === 'PROGRESS_TARGET'){
-                                          twisters.put(username, {
-                                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${claimTasks.id} | ${claimTasks.status}`});
-                                        }else{
-                                          twisters.put(username, {
-                                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${statusTask}`});
-                                        }
-                                    }else if(startTasks.message === 'Task type does not support start'){
-                                      // twisters.put(username, {
-                                      //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${startTasks.message} | ${statusTask}`});
-                                    }else{
-                                      twisters.put(username, {
-                                        text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${statusTask}`});
-                                    }
-                          }else if(statusTask.match('STARTED') || statusTask.match('READY_FOR_CLAIM')){
-                            claimTasks = await claimTask(refreshToken.refresh,idTask,randomUserAgent)
-                            // console.log(`claimTasks 2 :`,claimTasks)
-                            if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
-                              twisters.put(username, {
-                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
-                            }else if(claimTasks.type === 'PROGRESS_TARGET'){
-                              twisters.put(username, {
-                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${claimTasks.id} | ${claimTasks.status}`});
-                            }else if(claimTasks.message === 'Task is not done'){
-                              // twisters.put(username, {
-                              //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${claimTasks.message} | ${statusTask}`});
+                                //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task is not done : ${titleTask} | ${idTask} | ${claimTasks.message} | ${statusTask}`});
+                              }else{
+                                twisters.put(username, {
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task SOCIAL_SUBSCRIPTION Error : ${claimTasks.id} | ${claimTasks.status}`});
+                                // console.log(`${titleTask} | ${idTask} | ${statusTask}`)
+                              }
                             }else{
                               twisters.put(username, {
-                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | `});
-                              console.log(`${titleTask} | ${idTask} | ${statusTask}`)
+                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task READY_FOR_CLAIM/STARTED Error : ${idTask} | ${statusTask}`});
+                              // console.log(`${titleTask} | ${idTask} | ${statusTask}`)
                             }
-                          }else{
-                            twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | `});
-                            console.log(`${titleTask} | ${idTask} | ${statusTask}`)
-                          }
-                        
-                        });
+                          });
+                        })
               
                       // claim balance from referral
                       const checkClaimReferral = await CheckClaimReferral(refreshToken.refresh,randomUserAgent)
@@ -678,6 +684,6 @@ function date_format(unix_timestamp,format){
                 }
           }))
           // Delay 0.5s for each loop
-          await delay(500);
+          // await delay(500);
     }
 })();
