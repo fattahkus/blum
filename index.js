@@ -567,9 +567,10 @@ function date_format(unix_timestamp,format){
                                   //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${statusTask}`});
                             }else if(statusTask === 'NOT_STARTED'){
                                 const startTasks = await startTask(refreshToken.refresh,idTask,randomUserAgent)
-                                await delay(500)
-                                      if(startTasks.status === 'READY_FOR_CLAIM'){
+                                await delay(1500)
+                                      if(startTasks.status === 'READY_FOR_CLAIM' || startTasks.status === 'STARTED'){
                                         const claimTasks = await claimTask(refreshToken.refresh,idTask,randomUserAgent)
+                                        // console.log(claimTasks)
                                           if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
                                             twisters.put(username, {
                                               text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
@@ -578,14 +579,14 @@ function date_format(unix_timestamp,format){
                                               text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
                                           }else{
                                             twisters.put(username, {
-                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task : ${titleTask} | ${idTask} | ${statusTask}`});
+                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task Error: ${titleTask} | ${idTask} | ${claimTasks.message}`});
                                           }
                                       }else if(startTasks.message === 'Task type does not support start'){
-                                        // twisters.put(username, {
-                                        //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${startTasks.message} | ${statusTask}`});
+                                        twisters.put(username, {
+                                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Start Task not support : ${titleTask} | ${idTask} | ${startTasks.message} | ${statusTask}`});
                                       }else{
                                         twisters.put(username, {
-                                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task NOT_STARTED Error : ${titleTask} | ${idTask} | ${statusTask}`});
+                                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Start Task NOT_STARTED Error : ${titleTask} | ${idTask} | ${startTasks.status}`});
                                       }
                             }else if(statusTask === 'STARTED' || statusTask === 'READY_FOR_CLAIM'){
                               const claimTasks = await claimTask(refreshToken.refresh,idTask,randomUserAgent)
@@ -597,8 +598,8 @@ function date_format(unix_timestamp,format){
                                 twisters.put(username, {
                                   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
                               }else if(claimTasks.message === 'Task is not done'){
-                                // twisters.put(username, {
-                                //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task is not done : ${titleTask} | ${idTask} | ${claimTasks.message} | ${statusTask}`});
+                                twisters.put(username, {
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task is not done : ${titleTask} | ${idTask} | ${claimTasks.message} | ${statusTask}`});
                               }else{
                                 twisters.put(username, {
                                   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task SOCIAL_SUBSCRIPTION Error : ${claimTasks.id} | ${claimTasks.status}`});
@@ -606,7 +607,7 @@ function date_format(unix_timestamp,format){
                               }
                             }else{
                               twisters.put(username, {
-                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task READY_FOR_CLAIM/STARTED Error : ${idTask} | ${statusTask}`});
+                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task READY_FOR_CLAIM/STARTED Error : ${idTask} | ${claimTasks.status}`});
                               // console.log(`${titleTask} | ${idTask} | ${statusTask}`)
                             }
                           });
