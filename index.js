@@ -68,7 +68,7 @@ const getToken = (query,randomUserAgent) =>
         "accept-language": "en-US,en;q=0.9,id;q=0.8",
         "content-type": "application/json",
         "priority": "u=1, i",
-        "sec-ch-ua": randomUserAgent,
+        "User-Agent": randomUserAgent,
         "sec-ch-ua-mobile": "?1",
         "sec-ch-ua-platform": "\"Android\"",
         "sec-fetch-dest": "empty",
@@ -98,9 +98,7 @@ const RefreshToken = (bearer,randomUserAgent) =>
           "accept": "application/json, text/plain, */*",
           "accept-language": "en-US,en;q=0.9",
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"Windows\"",
+          "User-Agent": randomUserAgent,
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
@@ -129,7 +127,7 @@ const userCheck = (bearer,randomUserAgent) =>
               "accept-language": "en-US,en;q=0.9",
               "authorization": `Bearer ${bearer}`,
               "priority": "u=1, i",
-              "sec-ch-ua": randomUserAgent,
+              "User-Agent": randomUserAgent,
               "sec-ch-ua-mobile": "?0",
               "sec-ch-ua-platform": "\"Windows\"",
               "sec-fetch-dest": "empty",
@@ -149,6 +147,87 @@ const userCheck = (bearer,randomUserAgent) =>
         });
     });
 
+const checkMyTribe = (bearer,randomUserAgent) =>
+    new Promise((resolve, reject) => {
+      fetch("https://game-domain.blum.codes/api/v1/tribe/my", {
+        headers: {
+          "accept": "application/json, text/plain, */*",
+          "accept-language": "en-US,en;q=0.9",
+          "authorization": `Bearer ${bearer}`,
+          "priority": "u=1, i",
+          "User-Agent": randomUserAgent,
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-site"
+        },
+        referrerPolicy: "no-referrer",
+        body: null,
+        method: "GET"
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+
+const joinTribe = (bearer,randomUserAgent) =>
+    new Promise((resolve, reject) => {
+      fetch("https://game-domain.blum.codes/api/v1/tribe/f564fee2-a354-4a54-923c-52c884798e45/join", {
+        headers: {
+          "accept": "application/json, text/plain, */*",
+          "accept-language": "en-US,en;q=0.9",
+          "authorization": `Bearer ${bearer}`,
+          "priority": "u=1, i",
+          "User-Agent": randomUserAgent,
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-site"
+        },
+        referrerPolicy: "no-referrer",
+        body: null,
+        method: "POST"
+      })
+      .then((res) => res.clone().json().catch(() => res.text()))
+      // .then((res) => res.json())
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+
+const leaveTribe = (bearer,randomUserAgent) =>
+    new Promise((resolve, reject) => {
+      fetch("https://game-domain.blum.codes/api/v1/tribe/leave", {
+        headers: {
+          "accept": "application/json, text/plain, */*",
+          "accept-language": "en-US,en;q=0.9",
+          "authorization": `Bearer ${bearer}`,
+          "content-type": "application/json",
+          "priority": "u=1, i",
+          "User-Agent": randomUserAgent,
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-site"
+        },
+        referrerPolicy: "no-referrer",
+        body: "{}",
+        method: "POST"
+      })
+      .then((res) => res.clone().json().catch(() => res.text()))
+      // .then((res) => res.json())
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+
 const CheckBalanceClaim = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch("https://game-domain.blum.codes/api/v1/user/balance", {
@@ -157,9 +236,7 @@ const CheckBalanceClaim = (bearer,randomUserAgent) =>
           "accept-language": "en-US,en;q=0.9",
           "authorization": `Bearer ${bearer}`,
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"Windows\"",
+          "User-Agent": randomUserAgent,
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
@@ -188,9 +265,7 @@ const CheckBalanceClaim = (bearer,randomUserAgent) =>
           "accept-language": "en-US,en;q=0.9",
           "authorization": `Bearer ${bearer}`,
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"Windows\"",
+          "User-Agent": randomUserAgent,
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
@@ -218,9 +293,7 @@ const ClickFarm = (bearer,randomUserAgent) =>
           "accept-language": "en-US,en;q=0.9",
           "authorization": `Bearer ${bearer}`,
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"Windows\"",
+          "User-Agent": randomUserAgent,
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
@@ -248,7 +321,7 @@ const CheckClaimReferral = (bearer,randomUserAgent) =>
           "accept-language": "en-US,en;q=0.9,id;q=0.8,vi;q=0.7",
           "authorization": `Bearer ${bearer}`,
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
+          "User-Agent": randomUserAgent,
           "sec-ch-ua-mobile": "?1",
           "sec-ch-ua-platform": "\"iOS\"",
           "sec-fetch-dest": "empty",
@@ -278,7 +351,7 @@ const CheckClaimReferral = (bearer,randomUserAgent) =>
               "accept-language": "en-US,en;q=0.9,id;q=0.8,vi;q=0.7",
               "authorization": `Bearer ${bearer}`,
               "priority": "u=1, i",
-              "sec-ch-ua": randomUserAgent,
+              "User-Agent": randomUserAgent,
               "sec-ch-ua-mobile": "?1",
               "sec-ch-ua-platform": "\"iOS\"",
               "sec-fetch-dest": "empty",
@@ -308,7 +381,7 @@ const getGameId = (bearer,randomUserAgent) =>
           "accept-language": "en-US,en;q=0.9,id;q=0.8,vi;q=0.7",
           "authorization": `Bearer ${bearer}`,
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
+          "User-Agent": randomUserAgent,
           "sec-ch-ua-mobile": "?1",
           "sec-ch-ua-platform": "\"iOS\"",
           "sec-fetch-dest": "empty",
@@ -336,9 +409,7 @@ const claimGame = (bearer,gameId,points,randomUserAgent) =>
           "authorization": `Bearer ${bearer}`,
           "content-type": "application/json",
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"Windows\"",
+          "User-Agent": randomUserAgent,
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
@@ -347,7 +418,8 @@ const claimGame = (bearer,gameId,points,randomUserAgent) =>
         body: `{\"gameId\":\"${gameId}\",\"points\":${points}}`,
         method: "POST"
       })
-      .then((res) => res.clone().json().catch(() => res.text()))
+      // .then((res) => res.clone().json().catch(() => res.text()))
+      .then((res) => res.json())
         .then((res) => {
           resolve(res);
         })
@@ -363,9 +435,7 @@ const dailyRewards = (bearer,randomUserAgent) =>
           "accept-language": "en-US,en;q=0.9",
           "authorization": `Bearer ${bearer}`,
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"Windows\"",
+          "User-Agent": randomUserAgent,
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
@@ -374,7 +444,8 @@ const dailyRewards = (bearer,randomUserAgent) =>
         body: null,
         method: "POST"
       })
-      .then((res) => res.clone().json().catch(() => res.text()))
+      // .then((res) => res.clone().json().catch(() => res.text()))
+      .then((res) => res.json())
         .then((res) => {
           resolve(res);
         })
@@ -390,9 +461,7 @@ const getTask = (bearer,randomUserAgent) =>
           "accept-language": "en-US,en;q=0.9",
           "authorization": `Bearer ${bearer}`,
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"Windows\"",
+          "User-Agent": randomUserAgent,
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
@@ -401,7 +470,8 @@ const getTask = (bearer,randomUserAgent) =>
         body: null,
         method: "GET"
       })
-      .then((res) => res.clone().json().catch(() => res.text()))
+      // .then((res) => res.clone().json().catch(() => res.text()))
+      .then((res) => res.json())
         .then((res) => {
           resolve(res);
         })
@@ -417,9 +487,7 @@ const startTask = (bearer,taskId,randomUserAgent) =>
           "accept-language": "en-US,en;q=0.9",
           "authorization": `Bearer ${bearer}`,
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"Windows\"",
+          "User-Agent": randomUserAgent,
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
@@ -428,7 +496,17 @@ const startTask = (bearer,taskId,randomUserAgent) =>
         body: null,
         method: "POST"
       })
-      .then((res) => res.clone().json().catch(() => res.text()))
+      .then((res) => {
+          // console.log('wait for 10 seconds . . . . ');
+          return new Promise(function(resolve, reject) { 
+              setTimeout(() => {
+                  // console.log('10 seconds Timer expired!!!');
+                  res.json();
+              }, 120000)
+          });
+      })
+      // .then((res) => res.clone().json().catch(() => res.text()))
+      // .then((res) => res.json())
         .then((res) => {
           resolve(res);
         })
@@ -444,9 +522,7 @@ const claimTask = (bearer,taskId,randomUserAgent) =>
           "accept-language": "en-US,en;q=0.9",
           "authorization": `Bearer ${bearer}`,
           "priority": "u=1, i",
-          "sec-ch-ua": randomUserAgent,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"Windows\"",
+          "User-Agent": randomUserAgent,
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
@@ -455,7 +531,8 @@ const claimTask = (bearer,taskId,randomUserAgent) =>
         body: null,
         method: "POST"
       })
-      .then((res) => res.clone().json().catch(() => res.text()))
+      // .then((res) => res.clone().json().catch(() => res.text()))
+      .then((res) => res.json())
         .then((res) => {
           resolve(res);
         })
@@ -489,20 +566,13 @@ function date_format(unix_timestamp,format){
     return dateString;
 }
 (async () => {
-  // var username;
     const queryList = readFileToJSON("./blum.json");
     const twisters = new Twisters();
-    // let startTasks;
-    // let claimTasks
-    // let idTask;
-    // let statusTask;
-    // let titleTask;
-    // let kindTask;
 
     while (true) {  
-        await Promise.all(
-            queryList.map(async (query) => {
-                try{
+      await Promise.all(
+          queryList.map(async (query) => {
+            try{
                   const randomUserAgent = userAgentGenerator.ios();
                   const generateToken = await getToken(query,randomUserAgent)
                     // get old token from file
@@ -511,149 +581,163 @@ function date_format(unix_timestamp,format){
             
                     // get new token and replace old token on file
                     const refreshToken = await RefreshToken(bearer,randomUserAgent)
-                    const userDetails = await userCheck(refreshToken.refresh,randomUserAgent)
+                    const bearerRefresh = refreshToken.refresh
+                    const userDetails = await userCheck(bearerRefresh,randomUserAgent)
                     var username = userDetails.username
                   
-                  const checkBalanceClaim = await CheckBalanceClaim(refreshToken.refresh,randomUserAgent)
-                    const clickClaim = await ClickClaim(refreshToken.refresh,randomUserAgent)
+                    const checkBalanceClaim = await CheckBalanceClaim(bearerRefresh,randomUserAgent)
+                    const clickClaim = await ClickClaim(bearerRefresh,randomUserAgent)
+                    
+                    // get my tribe
+                    const checkMyTribes = await checkMyTribe(bearerRefresh,randomUserAgent)
+                    if(checkMyTribes.message === 'NOT_FOUND' && checkMyTribes.data.chatname === null){
+                      // console.log(`Not yet join in the tribe...`)
+                      const joinTribes = await joinTribe(bearerRefresh,randomUserAgent)
+                      if(joinTribes === 'OK'){
+                        const checkMyTribes = await checkMyTribe(bearerRefresh,randomUserAgent)
+                        // console.log(`Success join tribe ${checkMyTribes.title} rank : ${checkMyTribes.rank} members : ${checkMyTribes.countMembers} balance : ${checkMyTribes.earnBalance}`)
+                      }
+                    }else if(checkMyTribes.chatname !== null && checkMyTribes.chatname !== 'akuairdrop_channel'){
+                      const leaveTribes = await leaveTribe(bearerRefresh,randomUserAgent)
+                      if(leaveTribes === 'OK'){
+                        // console.log(`Success leave tribe...`)
+                        const joinTribes = await joinTribe(bearerRefresh,randomUserAgent)
+                        if(joinTribes === 'OK'){
+                          const checkMyTribes = await checkMyTribe(bearerRefresh,randomUserAgent)
+                          // console.log(`Success join tribe ${checkMyTribes.title} rank : ${checkMyTribes.rank} members : ${checkMyTribes.countMembers} balance : ${checkMyTribes.earnBalance}`)
+                        }
+                      }
+                    }
+
                     if(clickClaim.message){
                       // console.log(checkBalanceClaim)
                       // const startTime = checkBalanceClaim.farming.startTime
                       // const endTime = checkBalanceClaim.farming.endTime
-                      const dailyrewards = await dailyRewards(refreshToken.refresh,randomUserAgent)
+                      const dailyrewards = await dailyRewards(bearerRefresh,randomUserAgent)
                       if(dailyrewards == 'OK'){
                         twisters.put(username, {
-                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Success claim daily rewards...`});
+                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim daily rewards...`});
                       }else if(dailyrewards.message == 'same day' || dailyrewards.message == 'Not Found'){
                         twisters.put(username, {
-                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Failed claim daily rewards...`});
+                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Failed claim daily rewards...`});
                       }else{
                         twisters.put(username, {
-                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${dailyrewards.message}...`});
+                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | ${dailyrewards.message}...`});
                       }
                       // console.log("Failed claim balance : "+clickClaim.message+"...")
                       if(clickClaim.message == 'Need to start farm'){
                         // console.log("Cant claim farm balance, "+clickClaim.message+"...")
-                          const clickFarm = await ClickFarm(refreshToken.refresh,randomUserAgent)
+                          const clickFarm = await ClickFarm(bearerRefresh,randomUserAgent)
                           twisters.put(username, {
-                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Start Farm, ${clickFarm.startTime}`});
+                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Start Farm, ${clickFarm.startTime}`});
                       }else{
                         // twisters.put(username, {
                         //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Cant claim farm balance, ${clickClaim.message}...`});
                           twisters.put(username, {
-                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Balance To Claim : [${checkBalanceClaim.farming.balance}/ 57.6]`});
+                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Balance To Claim : [${checkBalanceClaim.farming.balance}/ 57.6]`});
                       }
 
-                      const getTasks = await getTask(refreshToken.refresh,randomUserAgent)
-                      // for (let index = 0; index < getTasks[0].length; index++) {
-
-                      // }
-                        getTasks.forEach(async (main) => {
-                          const taskList = main.tasks
-                          // console.log(taskList)
+                      // get task
+                      const getTasks = await getTask(bearerRefresh,randomUserAgent)
+                        getTasks.forEach(async (mainElement) => {
+                          const taskList = mainElement.tasks
                           taskList.forEach(async (element) => {
                             // console.log(element)
                             const idTask = element.id
                             const statusTask = element.status
                             const titleTask = element.title
                             const kindTask = element.kind
-                            // if(kindTask === 'QUEST'){
-
-                            // }else{
-
-                            // }
+                            
                             if(statusTask === 'CLAIMED' || statusTask === 'FINISHED'){
                                   // twisters.put(username, {
-                                  //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | ${titleTask} | ${idTask} | ${statusTask}`});
+                                    // text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | ${titleTask} | ${idTask} | ${statusTask}`});
                             }else if(statusTask === 'NOT_STARTED'){
-                                const startTasks = await startTask(refreshToken.refresh,idTask,randomUserAgent)
-                                await delay(1500)
+                                const startTasks = await startTask(bearerRefresh,idTask,randomUserAgent)
+                                await delay(500)
                                       if(startTasks.status === 'READY_FOR_CLAIM' || startTasks.status === 'STARTED'){
-                                        const claimTasks = await claimTask(refreshToken.refresh,idTask,randomUserAgent)
+                                        const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
                                         // console.log(claimTasks)
                                           if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
                                             twisters.put(username, {
-                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
+                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
                                           }else if(claimTasks.type === 'PROGRESS_TARGET'){
                                             twisters.put(username, {
-                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
+                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
                                           }else{
                                             twisters.put(username, {
-                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task Error: ${titleTask} | ${idTask} | ${claimTasks.message}`});
+                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task Error : ${titleTask} | ${idTask} | ${claimTasks.message}`});
                                           }
                                       }else if(startTasks.message === 'Task type does not support start'){
-                                        twisters.put(username, {
-                                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Start Task not support : ${titleTask} | ${idTask} | ${startTasks.message} | ${statusTask}`});
+                                        // twisters.put(username, {
+                                          // text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Start Task not support : ${titleTask} | ${idTask} | ${startTasks.message} | ${statusTask}`});
                                       }else{
                                         twisters.put(username, {
-                                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Start Task NOT_STARTED Error : ${titleTask} | ${idTask} | ${startTasks.status}`});
+                                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Start Task NOT_STARTED Error : ${titleTask} | ${idTask} | ${startTasks.status}`});
                                       }
                             }else if(statusTask === 'STARTED' || statusTask === 'READY_FOR_CLAIM'){
-                              const claimTasks = await claimTask(refreshToken.refresh,idTask,randomUserAgent)
+                              const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
                               // console.log(`claimTasks 2 :`,claimTasks)
                               if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
                               }else if(claimTasks.type === 'PROGRESS_TARGET'){
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
                               }else if(claimTasks.message === 'Task is not done'){
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task is not done : ${titleTask} | ${idTask} | ${claimTasks.message} | ${statusTask}`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task is not done : ${titleTask} | ${idTask} | ${claimTasks.message} | ${statusTask}`});
                               }else{
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task SOCIAL_SUBSCRIPTION Error : ${claimTasks.id} | ${claimTasks.status}`});
-                                // console.log(`${titleTask} | ${idTask} | ${statusTask}`)
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task SOCIAL_SUBSCRIPTION Error : ${claimTasks.id} | ${claimTasks.status}`});
                               }
                             }else{
                               twisters.put(username, {
-                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Claim Task READY_FOR_CLAIM/STARTED Error : ${idTask} | ${claimTasks.status}`});
-                              // console.log(`${titleTask} | ${idTask} | ${statusTask}`)
+                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task READY_FOR_CLAIM/STARTED Error : ${idTask} | ${claimTasks.status}`});
                             }
                           });
                         })
               
                       // claim balance from referral
-                      const checkClaimReferral = await CheckClaimReferral(refreshToken.refresh,randomUserAgent)
+                      const checkClaimReferral = await CheckClaimReferral(bearerRefresh,randomUserAgent)
                       // console.log(checkClaimReferral)
                       if(checkClaimReferral.amountForClaim > 10){
-                        const claimReferral = await ClaimReferral(refreshToken.refresh,randomUserAgent)
+                        const claimReferral = await ClaimReferral(bearerRefresh,randomUserAgent)
                         if(claimReferral.claimBalance){
                             twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Success claim referral balance ${claimReferral.claimBalance}`});
+                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim referral balance ${claimReferral.claimBalance}`});
                         }else{
                             twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Failed claim ${checkClaimReferral.amountForClaim} referral balance ${claimReferral.message}`});
+                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Failed claim ${checkClaimReferral.amountForClaim} referral balance ${claimReferral.message}`});
                         }
                       }
             
                       // play game and claim points
-                      const checkPlayGame = await CheckBalanceClaim(refreshToken.refresh,randomUserAgent)
+                      const checkPlayGame = await CheckBalanceClaim(bearerRefresh,randomUserAgent)
                       if(checkPlayGame.playPasses > 0){
-                        const gameId = await getGameId(refreshToken.refresh,randomUserAgent)
+                        const gameId = await getGameId(bearerRefresh,randomUserAgent)
                         if(gameId.gameId){
                             twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Success get GameId : ${gameId.gameId}`});
+                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success get GameId : ${gameId.gameId}`});
                           // random delay in seconds
                           let randPoints = Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000;
                           const GameId = gameId.gameId
-                            let getclaimGame = await claimGame(refreshToken.refresh,GameId,randPoints,randomUserAgent)
+                            let getclaimGame = await claimGame(bearerRefresh,GameId,randPoints,randomUserAgent)
                               if(getclaimGame == 'OK'){
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Success claim game balance...`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim game balance...`});
                               }else if(getclaimGame.message == 'game session not found'){
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Game ended, success claim game balance...`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Game ended, success claim game balance...`});
                               }else if(getclaimGame.message == 'game session not finished'){
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Trying to claim game balance, please wait...`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Trying to claim game balance, please wait...`});
             
                                   let gameResult;
                                   var stop = false;
                                   setTimeout(() => { stop = true; }, 60 * 1000);
                                   do {
                                       let randPoints = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
-                                      let getclaimGames = await claimGame(refreshToken.refresh,gameId.gameId,randPoints,randomUserAgent)
+                                      let getclaimGames = await claimGame(bearerRefresh,gameId.gameId,randPoints,randomUserAgent)
                                       // console.log(`claimGames : `,getclaimGames)
                                       gameResult = await getclaimGames.message;
                                       await delay(1000)
@@ -662,28 +746,30 @@ function date_format(unix_timestamp,format){
             
                                   if(gameResult == 'game session not found' || gameResult == 'OK'){
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Success claim game balance...`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim game balance...`});
                                   }
                               }else{
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Game error : ${getclaimGame}`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Game error : ${getclaimGame}`});
                               }
                         }else{
                             twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Failed get GameId : ${gameId.message}`});
+                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Failed get GameId : ${gameId.message}`});
                         }
                       }
                     }else{
                         twisters.put(username, {
-                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance :  ${checkBalanceClaim.availableBalance} | Success claim main balance : [${checkBalanceClaim.farming.balance}/ 57.6]`});
+                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim main balance : [${checkBalanceClaim.farming.balance}/ 57.6]`});
                     }
-                } catch (e) {
-                    console.log(e)
-                    // console.log('')
-                    twisters.put(username, {
-                      text: `[${moment().format("DD/MM/YY HH:mm:ss")}] Bad gateway...`});
-                }
-          }))
+                  } catch (e) {
+                      // console.log(e)
+                      // console.log('')
+                      twisters.put(username, {
+                        text: `[${moment().format("DD/MM/YY HH:mm:ss")}] error: ${e.type} ${e.code}`});
+                  }
+          })
+        )
+        await setTimeout(7200);
           // Delay 0.5s for each loop
           // await delay(500);
     }
