@@ -418,8 +418,8 @@ const claimGame = (bearer,gameId,points,randomUserAgent) =>
         body: `{\"gameId\":\"${gameId}\",\"points\":${points}}`,
         method: "POST"
       })
-      // .then((res) => res.clone().json().catch(() => res.text()))
-      .then((res) => res.json())
+      .then((res) => res.clone().json().catch(() => res.text()))
+      // .then((res) => res.json())
         .then((res) => {
           resolve(res);
         })
