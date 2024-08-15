@@ -257,7 +257,7 @@ const CheckBalanceClaim = (bearer,randomUserAgent) =>
         });
     });
 
-    const ClickClaim = (bearer,randomUserAgent) =>
+const ClickClaim = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch("https://game-domain.blum.codes/api/v1/farming/claim", {
         headers: {
@@ -285,6 +285,7 @@ const CheckBalanceClaim = (bearer,randomUserAgent) =>
           reject(err);
         });
     });
+
 const ClickFarm = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch("https://game-domain.blum.codes/api/v1/farming/start", {
@@ -313,6 +314,7 @@ const ClickFarm = (bearer,randomUserAgent) =>
           reject(err);
         });
     });
+
 const CheckClaimReferral = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch("https://gateway.blum.codes/v1/friends/balance", {
@@ -343,7 +345,8 @@ const CheckClaimReferral = (bearer,randomUserAgent) =>
           reject(err);
         });
     });
-    const ClaimReferral = (bearer,randomUserAgent) =>
+
+const ClaimReferral = (bearer,randomUserAgent) =>
         new Promise((resolve, reject) => {
           fetch("https://gateway.blum.codes/v1/friends/claim", {
             headers: {
@@ -373,6 +376,7 @@ const CheckClaimReferral = (bearer,randomUserAgent) =>
               reject(err);
             });
         });
+
 const getGameId = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch("https://game-domain.blum.codes/api/v1/game/play", {
@@ -400,6 +404,7 @@ const getGameId = (bearer,randomUserAgent) =>
           reject(err);
         });
     });
+
 const claimGame = (bearer,gameId,points,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch("https://game-domain.blum.codes/api/v1/game/claim", {
@@ -427,6 +432,7 @@ const claimGame = (bearer,gameId,points,randomUserAgent) =>
           reject(err);
         });
     });
+
 const dailyRewards = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch("https://game-domain.blum.codes/api/v1/daily-reward?offset=-420", {
@@ -453,6 +459,7 @@ const dailyRewards = (bearer,randomUserAgent) =>
           reject(err);
         });
     });
+
 const getTask = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch("https://game-domain.blum.codes/api/v1/tasks", {
@@ -479,6 +486,7 @@ const getTask = (bearer,randomUserAgent) =>
           reject(err);
         });
     });
+
 const startTask = (bearer,taskId,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch(`https://game-domain.blum.codes/api/v1/tasks/${taskId}/start`, {
@@ -514,6 +522,7 @@ const startTask = (bearer,taskId,randomUserAgent) =>
           reject(err);
         });
     });
+
 const claimTask = (bearer,taskId,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch(`https://game-domain.blum.codes/api/v1/tasks/${taskId}/claim`, {
@@ -565,6 +574,7 @@ function date_format(unix_timestamp,format){
     }
     return dateString;
 }
+
 (async () => {
     const queryList = readFileToJSON("./blum.json");
     const twisters = new Twisters();
@@ -765,12 +775,14 @@ function date_format(unix_timestamp,format){
                       // console.log(e)
                       // console.log('')
                       twisters.put(username, {
-                        text: `[${moment().format("DD/MM/YY HH:mm:ss")}] error: ${e.type} ${e.code}`});
+                        text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] error : ${e}`,e});
+                      // twisters.put(username, {
+                      //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] error: ${e.type} ${e.code}`,e});
                   }
           })
         )
-        await setTimeout(7200);
-          // Delay 0.5s for each loop
-          // await delay(500);
+        // Delay 0.5s for each loop
+          await setTimeout(3600);
+          await delay(1000);
     }
 })();
