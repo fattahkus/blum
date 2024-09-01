@@ -82,7 +82,8 @@ const getToken = (query,randomUserAgent) =>
       mode: "cors",
       credentials: "omit"
     })
-      .then((res) => res.json())
+      // .then((res) => res.json())
+      .then((res) => res.clone().json().catch(() => res.text()))
       .then((res) => {
         resolve(res);
       })
@@ -286,6 +287,34 @@ const ClickClaim = (bearer,randomUserAgent) =>
         });
     });
 
+const checkClaim = (bearer,randomUserAgent) =>
+    new Promise((resolve, reject) => {
+      fetch("https://game-domain.blum.codes/api/v1/time/now", {
+        headers: {
+          "accept": "application/json, text/plain, */*",
+          "accept-language": "en-US,en;q=0.9,id;q=0.8,vi;q=0.7",
+          "authorization": `Bearer ${bearer}`,
+          "priority": "u=1, i",
+          "User-Agent": randomUserAgent,
+          "sec-ch-ua-mobile": "?1",
+          "sec-ch-ua-platform": "\"iOS\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-site"
+        },
+        referrerPolicy: "no-referrer",
+        body: null,
+        method: "GET"
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+
 const ClickFarm = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
       fetch("https://game-domain.blum.codes/api/v1/farming/start", {
@@ -450,8 +479,8 @@ const dailyRewards = (bearer,randomUserAgent) =>
         body: null,
         method: "POST"
       })
-      // .then((res) => res.clone().json().catch(() => res.text()))
-      .then((res) => res.json())
+      .then((res) => res.clone().json().catch(() => res.text()))
+      // .then((res) => res.json())
         .then((res) => {
           resolve(res);
         })
@@ -592,190 +621,203 @@ function date_format(unix_timestamp,format){
                     // get new token and replace old token on file
                     const refreshToken = await RefreshToken(bearer,randomUserAgent)
                     const bearerRefresh = refreshToken.refresh
+                    // console.log(bearerRefresh)
+
                     const userDetails = await userCheck(bearerRefresh,randomUserAgent)
+                    // console.log(userDetails)
                     var username = userDetails.username
                   
                     const checkBalanceClaim = await CheckBalanceClaim(bearerRefresh,randomUserAgent)
-                    const clickClaim = await ClickClaim(bearerRefresh,randomUserAgent)
-                    
-                    // get my tribe
-                    const checkMyTribes = await checkMyTribe(bearerRefresh,randomUserAgent)
-                    if(checkMyTribes.message === 'NOT_FOUND' && checkMyTribes.data.chatname === null){
-                      // console.log(`Not yet join in the tribe...`)
-                      const joinTribes = await joinTribe(bearerRefresh,randomUserAgent)
-                      if(joinTribes === 'OK'){
-                        const checkMyTribes = await checkMyTribe(bearerRefresh,randomUserAgent)
-                        // console.log(`Success join tribe ${checkMyTribes.title} rank : ${checkMyTribes.rank} members : ${checkMyTribes.countMembers} balance : ${checkMyTribes.earnBalance}`)
-                      }
-                    }else if(checkMyTribes.chatname !== null && checkMyTribes.chatname !== 'akuairdrop_channel'){
-                      const leaveTribes = await leaveTribe(bearerRefresh,randomUserAgent)
-                      if(leaveTribes === 'OK'){
-                        // console.log(`Success leave tribe...`)
+                    // console.log(checkBalanceClaim)
+
+                    if(checkBalanceClaim.message !== 'redis: connection pool timeout'){
+                      const checkClaims = await checkClaim(bearerRefresh,randomUserAgent)
+                      // console.log(checkClaims)
+                      // const clickClaim = await ClickClaim(bearerRefresh,randomUserAgent)
+                      // console.log(clickClaim)
+                      
+                      // get my tribe
+                      var checkMyTribes = await checkMyTribe(bearerRefresh,randomUserAgent)
+                      if(checkMyTribes.message === 'NOT_FOUND' && checkMyTribes.data.chatname === null){
+                        // console.log(`Not yet join in the tribe...`)
                         const joinTribes = await joinTribe(bearerRefresh,randomUserAgent)
                         if(joinTribes === 'OK'){
                           const checkMyTribes = await checkMyTribe(bearerRefresh,randomUserAgent)
                           // console.log(`Success join tribe ${checkMyTribes.title} rank : ${checkMyTribes.rank} members : ${checkMyTribes.countMembers} balance : ${checkMyTribes.earnBalance}`)
                         }
-                      }
-                    }
-
-                    if(clickClaim.message){
-                      // console.log(checkBalanceClaim)
-                      // const startTime = checkBalanceClaim.farming.startTime
-                      // const endTime = checkBalanceClaim.farming.endTime
-                      const dailyrewards = await dailyRewards(bearerRefresh,randomUserAgent)
-                      if(dailyrewards == 'OK'){
-                        twisters.put(username, {
-                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim daily rewards...`});
-                      }else if(dailyrewards.message == 'same day' || dailyrewards.message == 'Not Found'){
-                        twisters.put(username, {
-                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Failed claim daily rewards...`});
-                      }else{
-                        twisters.put(username, {
-                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | ${dailyrewards.message}...`});
-                      }
-                      // console.log("Failed claim balance : "+clickClaim.message+"...")
-                      if(clickClaim.message == 'Need to start farm'){
-                        // console.log("Cant claim farm balance, "+clickClaim.message+"...")
-                          const clickFarm = await ClickFarm(bearerRefresh,randomUserAgent)
-                          twisters.put(username, {
-                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Start Farm, ${clickFarm.startTime}`});
-                      }else{
-                        // twisters.put(username, {
-                        //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Cant claim farm balance, ${clickClaim.message}...`});
-                          twisters.put(username, {
-                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Balance To Claim : [${checkBalanceClaim.farming.balance}/ 57.6]`});
-                      }
-
-                      // get task
-                      const getTasks = await getTask(bearerRefresh,randomUserAgent)
-                        getTasks.forEach(async (mainElement) => {
-                          const taskList = mainElement.tasks
-                          taskList.forEach(async (element) => {
-                            // console.log(element)
-                            const idTask = element.id
-                            const statusTask = element.status
-                            const titleTask = element.title
-                            const kindTask = element.kind
-                            
-                            if(statusTask === 'CLAIMED' || statusTask === 'FINISHED'){
-                                  // twisters.put(username, {
-                                    // text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | ${titleTask} | ${idTask} | ${statusTask}`});
-                            }else if(statusTask === 'NOT_STARTED'){
-                                const startTasks = await startTask(bearerRefresh,idTask,randomUserAgent)
-                                await delay(500)
-                                      if(startTasks.status === 'READY_FOR_CLAIM' || startTasks.status === 'STARTED'){
-                                        const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
-                                        // console.log(claimTasks)
-                                          if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
-                                            twisters.put(username, {
-                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
-                                          }else if(claimTasks.type === 'PROGRESS_TARGET'){
-                                            twisters.put(username, {
-                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
-                                          }else{
-                                            twisters.put(username, {
-                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task Error : ${titleTask} | ${idTask} | ${claimTasks.message}`});
-                                          }
-                                      }else if(startTasks.message === 'Task type does not support start'){
-                                        // twisters.put(username, {
-                                          // text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Start Task not support : ${titleTask} | ${idTask} | ${startTasks.message} | ${statusTask}`});
-                                      }else{
-                                        twisters.put(username, {
-                                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Start Task NOT_STARTED Error : ${titleTask} | ${idTask} | ${startTasks.status}`});
-                                      }
-                            }else if(statusTask === 'STARTED' || statusTask === 'READY_FOR_CLAIM'){
-                              const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
-                              // console.log(`claimTasks 2 :`,claimTasks)
-                              if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
-                                twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
-                              }else if(claimTasks.type === 'PROGRESS_TARGET'){
-                                twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
-                              }else if(claimTasks.message === 'Task is not done'){
-                                twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task is not done : ${titleTask} | ${idTask} | ${claimTasks.message} | ${statusTask}`});
-                              }else{
-                                twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task SOCIAL_SUBSCRIPTION Error : ${claimTasks.id} | ${claimTasks.status}`});
-                              }
-                            }else{
-                              twisters.put(username, {
-                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task READY_FOR_CLAIM/STARTED Error : ${idTask} | ${claimTasks.status}`});
-                            }
-                          });
-                        })
-              
-                      // claim balance from referral
-                      const checkClaimReferral = await CheckClaimReferral(bearerRefresh,randomUserAgent)
-                      // console.log(checkClaimReferral)
-                      if(checkClaimReferral.amountForClaim > 10){
-                        const claimReferral = await ClaimReferral(bearerRefresh,randomUserAgent)
-                        if(claimReferral.claimBalance){
-                            twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim referral balance ${claimReferral.claimBalance}`});
-                        }else{
-                            twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Failed claim ${checkClaimReferral.amountForClaim} referral balance ${claimReferral.message}`});
+                      }else if(checkMyTribes.chatname !== null && checkMyTribes.chatname !== 'akuairdrop_channel'){
+                        const leaveTribes = await leaveTribe(bearerRefresh,randomUserAgent)
+                        if(leaveTribes === 'OK'){
+                          // console.log(`Success leave tribe...`)
+                          const joinTribes = await joinTribe(bearerRefresh,randomUserAgent)
+                          if(joinTribes === 'OK'){
+                            const checkMyTribes = await checkMyTribe(bearerRefresh,randomUserAgent)
+                            // console.log(`Success join tribe ${checkMyTribes.title} rank : ${checkMyTribes.rank} members : ${checkMyTribes.countMembers} balance : ${checkMyTribes.earnBalance}`)
+                          }
                         }
                       }
-            
-                      // play game and claim points
-                      const checkPlayGame = await CheckBalanceClaim(bearerRefresh,randomUserAgent)
-                      if(checkPlayGame.playPasses > 0){
-                        const gameId = await getGameId(bearerRefresh,randomUserAgent)
-                        if(gameId.gameId){
-                            twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success get GameId : ${gameId.gameId}`});
-                          // random delay in seconds
-                          let randPoints = Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000;
-                          const GameId = gameId.gameId
-                            let getclaimGame = await claimGame(bearerRefresh,GameId,randPoints,randomUserAgent)
-                              if(getclaimGame == 'OK'){
-                                twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim game balance...`});
-                              }else if(getclaimGame.message == 'game session not found'){
-                                twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Game ended, success claim game balance...`});
-                              }else if(getclaimGame.message == 'game session not finished'){
-                                twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Trying to claim game balance, please wait...`});
-            
-                                  let gameResult;
-                                  var stop = false;
-                                  setTimeout(() => { stop = true; }, 60 * 1000);
-                                  do {
-                                      let randPoints = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
-                                      let getclaimGames = await claimGame(bearerRefresh,gameId.gameId,randPoints,randomUserAgent)
-                                      // console.log(`claimGames : `,getclaimGames)
-                                      gameResult = await getclaimGames.message;
-                                      await delay(1000)
-                                      if (stop) break;
-                                  } while (gameResult != 'game session not found' && gameResult != 'OK');
-            
-                                  if(gameResult == 'game session not found' || gameResult == 'OK'){
-                                twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim game balance...`});
-                                  }
+  
+                      if(checkBalanceClaim.farming === undefined){
+                        const clickFarm = await ClickFarm(bearerRefresh,randomUserAgent)
+                        twisters.put(username, {
+                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Start Farm, ${clickFarm.startTime}`});
+                      }else if(checkClaims.now < checkBalanceClaim.farming.endTime){
+                        // console.log(checkBalanceClaim)
+                        // const startTime = checkBalanceClaim.farming.startTime
+                        // const endTime = checkBalanceClaim.farming.endTime
+                        const dailyrewards = await dailyRewards(bearerRefresh,randomUserAgent)
+                        if(dailyrewards == 'OK'){
+                          twisters.put(username, {
+                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim daily rewards...`});
+                        }else if(dailyrewards.message == 'same day' || dailyrewards.message == 'Not Found'){
+                          twisters.put(username, {
+                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Failed claim daily rewards...`});
+                        }else{
+                          twisters.put(username, {
+                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | ${dailyrewards.message}...`});
+                        }
+  
+                        // get task
+                        const getTasks = await getTask(bearerRefresh,randomUserAgent)
+                          getTasks.forEach(async (mainElement) => {
+                            const taskList = mainElement.tasks
+                            taskList.forEach(async (element) => {
+                              // console.log(element)
+                              const idTask = element.id
+                              const statusTask = element.status
+                              const titleTask = element.title
+                              const kindTask = element.kind
+                              
+                              if(statusTask === 'CLAIMED' || statusTask === 'FINISHED'){
+                                    // twisters.put(username, {
+                                      // text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | ${titleTask} | ${idTask} | ${statusTask}`});
+                              }else if(statusTask === 'NOT_STARTED'){
+                                  const startTasks = await startTask(bearerRefresh,idTask,randomUserAgent)
+                                  await delay(500)
+                                        if(startTasks.status === 'READY_FOR_CLAIM' || startTasks.status === 'STARTED'){
+                                          const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
+                                          // console.log(claimTasks)
+                                            if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
+                                              twisters.put(username, {
+                                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
+                                            }else if(claimTasks.type === 'PROGRESS_TARGET'){
+                                              twisters.put(username, {
+                                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
+                                            }else{
+                                              twisters.put(username, {
+                                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task Error : ${titleTask} | ${idTask} | ${claimTasks.message}`});
+                                            }
+                                        }else if(startTasks.message === 'Task type does not support start'){
+                                          // twisters.put(username, {
+                                            // text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Start Task not support : ${titleTask} | ${idTask} | ${startTasks.message} | ${statusTask}`});
+                                        }else{
+                                          twisters.put(username, {
+                                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Start Task NOT_STARTED Error : ${titleTask} | ${idTask} | ${startTasks.status}`});
+                                        }
+                              }else if(statusTask === 'STARTED' || statusTask === 'READY_FOR_CLAIM'){
+                                const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
+                                // console.log(`claimTasks 2 :`,claimTasks)
+                                if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
+                                  twisters.put(username, {
+                                    text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
+                                }else if(claimTasks.type === 'PROGRESS_TARGET'){
+                                  twisters.put(username, {
+                                    text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
+                                }else if(claimTasks.message === 'Task is not done'){
+                                  twisters.put(username, {
+                                    text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task is not done : ${titleTask} | ${idTask} | ${claimTasks.message} | ${statusTask}`});
+                                }else{
+                                  twisters.put(username, {
+                                    text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task SOCIAL_SUBSCRIPTION Error : ${claimTasks.id} | ${claimTasks.status}`});
+                                }
                               }else{
+                                // const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Game error : ${getclaimGame}`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Claim Task READY_FOR_CLAIM/STARTED Error : ${idTask} | ${element}`});
                               }
+                            });
+                          })
+                
+                        // claim balance from referral
+                        const checkClaimReferral = await CheckClaimReferral(bearerRefresh,randomUserAgent)
+                        // console.log(checkClaimReferral)
+                        if(checkClaimReferral.amountForClaim > 10){
+                          const claimReferral = await ClaimReferral(bearerRefresh,randomUserAgent)
+                          if(claimReferral.claimBalance){
+                              twisters.put(username, {
+                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim referral balance ${claimReferral.claimBalance}`});
+                          }else{
+                              twisters.put(username, {
+                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Failed claim ${checkClaimReferral.amountForClaim} referral balance ${claimReferral.message}`});
+                          }
+                        }
+              
+                        // play game and claim points
+                        const checkPlayGame = await CheckBalanceClaim(bearerRefresh,randomUserAgent)
+                        if(checkPlayGame.playPasses > 0){
+                          const gameId = await getGameId(bearerRefresh,randomUserAgent)
+                          if(gameId.gameId){
+                              twisters.put(username, {
+                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success get GameId : ${gameId.gameId}`});
+                            // random delay in seconds
+                            let randPoints = Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000;
+                            const GameId = gameId.gameId
+                              let getclaimGame = await claimGame(bearerRefresh,GameId,randPoints,randomUserAgent)
+                                if(getclaimGame == 'OK'){
+                                  twisters.put(username, {
+                                    text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim game balance...`});
+                                }else if(getclaimGame.message == 'game session not found'){
+                                  twisters.put(username, {
+                                    text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Game ended, success claim game balance...`});
+                                }else if(getclaimGame.message == 'game session not finished'){
+                                  twisters.put(username, {
+                                    text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Trying to claim game balance, please wait...`});
+              
+                                    let gameResult;
+                                    var stop = false;
+                                    setTimeout(() => { stop = true; }, 60 * 1000);
+                                    do {
+                                        let randPoints = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
+                                        let getclaimGames = await claimGame(bearerRefresh,gameId.gameId,randPoints,randomUserAgent)
+                                        // console.log(`claimGames : `,getclaimGames)
+                                        gameResult = await getclaimGames.message;
+                                        await delay(1000)
+                                        if (stop) break;
+                                    } while (gameResult != 'game session not found' && gameResult != 'OK');
+              
+                                    if(gameResult == 'game session not found' || gameResult == 'OK'){
+                                  twisters.put(username, {
+                                    text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim game balance...`});
+                                    }
+                                }else{
+                                  twisters.put(username, {
+                                    text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Game error : ${getclaimGame}`});
+                                }
+                          }else{
+                              twisters.put(username, {
+                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Failed get GameId : ${gameId.message}`});
+                          }
+                        }
+                      }else{
+                        const clickClaim = await ClickClaim(bearerRefresh,randomUserAgent)
+                        // console.log(clickClaim)
+                        if(clickClaim.message === "It's too early to claim"){
+                          twisters.put(username, {
+                            text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | It's too early to claim : [${checkBalanceClaim.farming.balance}/ 57.6]`});
                         }else{
                             twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Failed get GameId : ${gameId.message}`});
+                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim main balance : [${checkBalanceClaim.farming.balance}/ 57.6]`});
                         }
                       }
                     }else{
                         twisters.put(username, {
-                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Success claim main balance : [${checkBalanceClaim.farming.balance}/ 57.6]`});
+                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${checkMyTribes.earnBalance} MyTribe Rank : ${checkMyTribes.rank} | Blum Server TimeOut...`});
                     }
                   } catch (e) {
                       // console.log(e)
                       // console.log('')
                       twisters.put(username, {
-                        text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] error : ${e}`,e});
+                        text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] error : ${e}`});
                       // twisters.put(username, {
                       //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] error: ${e.type} ${e.code}`,e});
                   }
@@ -783,6 +825,6 @@ function date_format(unix_timestamp,format){
         )
         // Delay 0.5s for each loop
           await setTimeout(3600);
-          await delay(1000);
+          // await delay(1000);
     }
 })();
