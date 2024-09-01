@@ -705,7 +705,7 @@ function date_format(unix_timestamp,format){
                                   const targetTask = parseFloat(element.progressTarget.target)
 
                                   if(progressTask >= targetTask){
-                                    console.log("PROGRESS_TARGET :",element)
+                                    // console.log("PROGRESS_TARGET :",element)
                                     const startTasks = await startTask(bearerRefresh,idTask,randomUserAgent)
                                     await delay(500)
                                           if(startTasks.status === 'READY_FOR_CLAIM' || startTasks.status === 'STARTED'){
@@ -730,7 +730,7 @@ function date_format(unix_timestamp,format){
                                           }
                                   }
                                 }else if(typeTask !== 'PROGRESS_TARGET' && statusTask === 'NOT_STARTED'){
-                                  console.log("NOT_PROGRESS_TARGET :",element)
+                                  // console.log("NOT_PROGRESS_TARGET :",element)
                                     const startTasks = await startTask(bearerRefresh,idTask,randomUserAgent)
                                     await delay(500)
                                           if(startTasks.status === 'READY_FOR_CLAIM' || startTasks.status === 'STARTED'){
