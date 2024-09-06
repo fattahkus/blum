@@ -62,7 +62,7 @@ const userAgentGenerator = {
 
 const getToken = (query,randomUserAgent) =>
   new Promise((resolve, reject) => {
-    fetch("https://gateway.blum.codes/v1/auth/provider/PROVIDER_TELEGRAM_MINI_APP", {
+    fetch("https://user-domain.blum.codes/api/v1/auth/provider/PROVIDER_TELEGRAM_MINI_APP", {
       headers: {
         "accept": "application/json, text/plain, */*",
         "accept-language": "en-US,en;q=0.9,id;q=0.8",
@@ -94,22 +94,22 @@ const getToken = (query,randomUserAgent) =>
 
 const RefreshToken = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
-      fetch("https://gateway.blum.codes/v1/auth/refresh", {
+      fetch("https://user-domain.blum.codes/api/v1/auth/refresh", {
         headers: {
           "accept": "application/json, text/plain, */*",
-          "accept-language": "en-US,en;q=0.9",
+          "accept-language": "en-US,en;q=0.9,id;q=0.8,vi;q=0.7",
+          "content-type": "application/json",
           "priority": "u=1, i",
-          "User-Agent": randomUserAgent,
+          "sec-ch-ua": "\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Google Chrome\";v=\"128\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
           "sec-fetch-dest": "empty",
           "sec-fetch-mode": "cors",
           "sec-fetch-site": "same-site"
         },
-        body: JSON.stringify({
-          refresh: bearer // Menghilangkan spasi di awal dan akhir token
-        }),
-        referrer: "https://telegram.blum.codes/",
-        referrerPolicy: "strict-origin-when-cross-origin",
-        method: "POST",
+        referrerPolicy: "no-referrer",
+        body: `{\"refresh\":\"${bearer}\"}`,
+        method: "POST"
       })
         .then((res) => res.json())
         .then((res) => {
@@ -122,7 +122,7 @@ const RefreshToken = (bearer,randomUserAgent) =>
     
 const userCheck = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
-        fetch("https://gateway.blum.codes/v1/user/me", {
+        fetch("https://user-domain.blum.codes/api/v1/user/me", {
             headers: {
               "accept": "application/json, text/plain, */*",
               "accept-language": "en-US,en;q=0.9",
@@ -622,7 +622,6 @@ function date_format(unix_timestamp,format){
                         // get new token and replace old token on file
                         const refreshToken = await RefreshToken(bearer,randomUserAgent)
                         const bearerRefresh = refreshToken.refresh
-                        await delay(1000);
                         // console.log(bearerRefresh)
 
                         const userDetails = await userCheck(bearerRefresh,randomUserAgent)
@@ -754,7 +753,7 @@ function date_format(unix_timestamp,format){
                                                 twisters.put(username, {
                                                   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Start Task NOT_STARTED Error : ${titleTask} | ${idTask} | ${startTasks.status}`});
                                               }
-                                    }else if(statusTask === 'STARTED' || statusTask === 'READY_FOR_CLAIM' && statusTask === 'NOT_STARTED'){
+                                    }else if(statusTask !== 'NOT_STARTED' || statusTask !== 'CLAIMED' || statusTask !== 'FINISHED'){
                                       const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
                                             // console.log(`claimTasks 2 :`,claimTasks)
                                             if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
@@ -847,7 +846,7 @@ function date_format(unix_timestamp,format){
                                     text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Failed get GameId : ${gameId.message}`});
                               }
                             }
-                          }else{
+                          }else{                              
                             const clickClaim = await ClickClaim(bearerRefresh,randomUserAgent)
                             // console.log(clickClaim)
                             if(clickClaim.message === "It's too early to claim"){
