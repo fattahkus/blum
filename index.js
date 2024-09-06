@@ -344,7 +344,7 @@ const ClickFarm = (bearer,randomUserAgent) =>
 
 const CheckClaimReferral = (bearer,randomUserAgent) =>
     new Promise((resolve, reject) => {
-      fetch("https://gateway.blum.codes/v1/friends/balance", {
+      fetch("https://user-domain.blum.codes/api/v1/friends/balance", {
         headers: {
           "accept": "application/json, text/plain, */*",
           "accept-language": "en-US,en;q=0.9,id;q=0.8,vi;q=0.7",
@@ -373,7 +373,7 @@ const CheckClaimReferral = (bearer,randomUserAgent) =>
 
 const ClaimReferral = (bearer,randomUserAgent) =>
         new Promise((resolve, reject) => {
-          fetch("https://gateway.blum.codes/v1/friends/claim", {
+          fetch("https://user-domain.blum.codes/api/v1/friends/claim", {
             headers: {
               "accept": "application/json, text/plain, */*",
               "accept-language": "en-US,en;q=0.9,id;q=0.8,vi;q=0.7",
@@ -673,8 +673,9 @@ function date_format(unix_timestamp,format){
                                   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Error start Farm ${clickFarm.message}...`});
                               }
                           }else if(checkClaims.now < checkBalanceClaim.farming.endTime){
+                            const maxFarming = (checkBalanceClaim.farming.earningsRate*28800).toFixed(2);
                             twisters.put(username, {
-                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Farming balance : [${checkBalanceClaim.farming.balance}/ 57.6]`});
+                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Farming balance : [${checkBalanceClaim.farming.balance}/${maxFarming}]`});
                               
                             const dailyrewards = await dailyRewards(bearerRefresh,randomUserAgent)
                             if(dailyrewards == 'OK'){
@@ -850,8 +851,9 @@ function date_format(unix_timestamp,format){
                             const clickClaim = await ClickClaim(bearerRefresh,randomUserAgent)
                             // console.log(clickClaim)
                             if(clickClaim.message === "It's too early to claim"){
+                              const maxFarming = (checkBalanceClaim.farming.earningsRate*28800).toFixed(2);
                               twisters.put(username, {
-                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | It's too early to claim : [${checkBalanceClaim.farming.balance}/ 57.6]`});
+                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | It's too early to claim : [${checkBalanceClaim.farming.balance}/${maxFarming}]`});
                             }else if(clickClaim.message === "Need to start farm"){
                               twisters.put(username, {
                                 text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | It's need to start farm, trying to start farm...`});
@@ -864,8 +866,9 @@ function date_format(unix_timestamp,format){
                                         text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Error start Farm ${clickFarm.message}`});
                                     }
                             }else{
+                              const maxFarming = (checkBalanceClaim.farming.earningsRate*28800).toFixed(2);
                                 twisters.put(username, {
-                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Success claim main balance : [${checkBalanceClaim.farming.balance}/ 57.6]`});
+                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Success claim main balance : [${checkBalanceClaim.farming.balance}/${maxFarming}]`});
                             }
                           }
                         }else{
