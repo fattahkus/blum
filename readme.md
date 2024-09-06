@@ -2,13 +2,13 @@ Note :
 
 The following characters in the query must be changed
 
-" must be %22 "\n"
-{ must be %7B "\n"
-} must be %7D "\n"
-= must be %3D "\n"
-& must be %26 "\n"
-, must be %2C "\n"
-: must be %3A "\n"
+" must be %22  
+{ must be %7B  
+} must be %7D  
+= must be %3D  
+& must be %26  
+, must be %2C  
+: must be %3A  
 
-encode : https://www.urlencoder.org/ "\n"
-decode : https://www.urldecoder.org/ "\n"
+encode : https://www.urlencoder.org/  
+decode : https://www.urldecoder.org/
