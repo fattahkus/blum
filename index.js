@@ -736,7 +736,7 @@ const collectTasks = (data) => {
                               if(dailyrewards == 'OK'){
                                 twisters.put(username, {
                                   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Success claim daily rewards...`});
-                              }else if(dailyrewards.message == 'same day' || dailyrewards.message == 'Not Found'){
+                              }else if(dailyrewards.message === 'same day' || dailyrewards.message === 'Not Found'){
                                 twisters.put(username, {
                                   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Daily rewards has been claimed...`});
                               }else{
@@ -760,7 +760,7 @@ const collectTasks = (data) => {
                                         const kindTask = element.kind
                                         const validationTypeTask = element.validationType
                                         
-                                        if(statusTask !== 'CLAIMED' && statusTask !== 'FINISHED'){
+                                        if(statusTask !== 'CLAIMED' && statusTask !== 'FINISHED' && statusTask !== 'Task is already claimed'){
                                           if(typeTask === 'PROGRESS_TARGET' && statusTask === 'NOT_STARTED'){
                                             const progressTask = parseFloat(element.progressTarget.progress)
                                             const targetTask = parseFloat(element.progressTarget.target)
@@ -801,6 +801,34 @@ const collectTasks = (data) => {
                                                           twisters.put(username, {
                                                             text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Claim Task Error : ${titleTask} | ${idTask} | ${claimTasks.message}`});
                                                         }
+                                                    }else if(startTasks.status === "READY_FOR_VERIFY"){
+                                                      // console.log("idTask :",idTask)
+                                                      const answer = TASKANSWER.getAnswer(idTask);
+                                                      // console.log("answer :",answer)
+                                                      if (answer) {
+                                                        const validateTasks = await validateTask(bearerRefresh,idTask,randomUserAgent,answer)
+                                                        // console.log("validateTasks :",validateTasks)
+                                                        if(!validateTasks.message){
+                                                          if(validateTasks === "READY_FOR_CLAIM"){
+                                                            const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
+                                                            console.log("READY_FOR_VERIFY :",claimTasks)
+                                                              if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
+                                                                twisters.put(username, {
+                                                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Claim Task SOCIAL_SUBSCRIPTION : ${claimTasks.title} | ${claimTasks.id} | ${claimTasks.status}`});
+                                                              }else if(claimTasks.type === 'PROGRESS_TARGET'){
+                                                                twisters.put(username, {
+                                                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Claim Task PROGRESS_TARGET : ${claimTasks.id} | ${claimTasks.status}`});
+                                                                  // console.log(claimTasks)
+                                                              }else if(claimTasks.message === 'Task is not done'){
+                                                                twisters.put(username, {
+                                                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Claim Task is not done : ${titleTask} | ${idTask} | ${statusTask} - ${claimTasks.message}`});
+                                                              }else{
+                                                                twisters.put(username, {
+                                                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Claim Task SOCIAL_SUBSCRIPTION Error : ${claimTasks.id} | ${claimTasks.status}`});
+                                                              }
+                                                          }
+                                                        }
+                                                      }
                                                     }else if(startTasks.message === 'Task type does not support start'){
                                                       // twisters.put(username, {
                                                       //   text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Task type does not support start : ${titleTask} | ${idTask} | ${statusTask} - ${startTasks.message}`});
@@ -811,7 +839,7 @@ const collectTasks = (data) => {
                                           }else if(statusTask === 'READY_FOR_CLAIM'){
                                             // console.log(`cek 2 : ${idTask} ${titleTask} ${statusTask}`)
                                             const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
-                                              if(claimTask.message !== "can not get task events" || claimTask.message !== "can not get task"){
+                                              if(claimTask.message !== "can not get task events" && claimTask.message !== "can not get task" && claimTask.message !== 'Task is already claimed'){
                                                 // console.log(`claimTasks 2 : ${idTask} ${titleTask} ${statusTask}`,claimTasks)
                                                 if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
                                                   twisters.put(username, {
@@ -857,13 +885,15 @@ const collectTasks = (data) => {
                                               }
                                             }
                                           }else{
-                                            if(typeTask === 'PROGRESS_TARGET'){
-                                              twisters.put(username, {
-                                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Task Progress Not Yet Achieved : ${idTask} | ${titleTask} | ${typeTask} | ${statusTask} | ${element.progressTarget.progress} / ${element.progressTarget.target}`});
-                                            }else{
-                                              twisters.put(username, {
-                                                text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Trying to reclaim task : ${idTask} | ${titleTask} | ${typeTask} | ${statusTask}`});
-                                                // console.log(element)
+                                            if(statusTask !== 'CLAIMED' && statusTask !== 'FINISHED' && statusTask !== 'Task is already claimed' && statusTask !== undefined){
+                                              if(typeTask === 'PROGRESS_TARGET'){
+                                                twisters.put(username, {
+                                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Task Progress Not Yet Achieved : ${idTask} | ${titleTask} | ${typeTask} | ${statusTask} | ${element.progressTarget.progress} / ${element.progressTarget.target}`});
+                                              }else{
+                                                twisters.put(username, {
+                                                  text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Trying to reclaim task : ${idTask} | ${titleTask} | ${typeTask} | ${statusTask}`});
+                                                  // console.log(element)
+                                              }
                                             }
                                             // const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
                                           }
@@ -919,11 +949,11 @@ const collectTasks = (data) => {
                                               gameResult = await getclaimGames.message;
                                               await delay(1000)
                                               if (stop) break;
-                                          } while (gameResult != 'game session not found' && gameResult != 'OK');
+                                          } while (gameResult !== 'game session not found' && gameResult !== 'OK');
                     
-                                          if(gameResult == 'game session not found' || gameResult == 'OK'){
-                                        twisters.put(username, {
-                                          text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Success claim game balance...`});
+                                          if(gameResult === 'game session not found' || gameResult === 'OK'){
+                                            twisters.put(username, {
+                                              text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Success claim game balance...`});
                                           }
                                       }else{
                                         twisters.put(username, {
