@@ -761,7 +761,7 @@ const collectTasks = (data) => {
                                         const validationTypeTask = element.validationType
                                         
                                         if(statusTask !== 'CLAIMED' && statusTask !== 'FINISHED' && statusTask !== 'Task is already claimed'){
-                                          if(typeTask === 'PROGRESS_TARGET' && statusTask === 'NOT_STARTED'){
+                                          if(statusTask === 'NOT_STARTED' && typeTask === 'PROGRESS_TARGET'){
                                             const progressTask = parseFloat(element.progressTarget.progress)
                                             const targetTask = parseFloat(element.progressTarget.target)
                                             if(progressTask >= targetTask){
@@ -787,7 +787,7 @@ const collectTasks = (data) => {
                                                         text: `[${moment().format("DD/MM/YY HH:mm:ss")}] [${username}] Main Balance : ${checkBalanceClaim.availableBalance} playPasses : ${checkBalanceClaim.playPasses} MyTribe Balance : ${tribeBalance} MyTribe Rank : ${tribeRank} | Start Task NOT_STARTED Error : ${titleTask} | ${idTask} | ${startTasks.status}`});
                                                     }
                                             }
-                                          }else if(typeTask !== 'PROGRESS_TARGET' && statusTask === 'NOT_STARTED'){
+                                          }else if(statusTask === 'NOT_STARTED' && typeTask !== 'PROGRESS_TARGET'){
                                             // console.log("NOT_PROGRESS_TARGET :",element)
                                               const startTasks = await startTask(bearerRefresh,idTask,randomUserAgent)
                                               await delay(500)
@@ -839,7 +839,7 @@ const collectTasks = (data) => {
                                           }else if(statusTask === 'READY_FOR_CLAIM'){
                                             // console.log(`cek 2 : ${idTask} ${titleTask} ${statusTask}`)
                                             const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
-                                              if(claimTask.message !== "can not get task events" && claimTask.message !== "can not get task" && claimTask.message !== 'Task is already claimed'){
+                                              if(claimTasks.message !== "can not get task events" && claimTasks.message !== "can not get task" && claimTasks.message !== 'Task is already claimed'){
                                                 // console.log(`claimTasks 2 : ${idTask} ${titleTask} ${statusTask}`,claimTasks)
                                                 if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
                                                   twisters.put(username, {
