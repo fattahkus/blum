@@ -8,7 +8,7 @@ export class TASKANSWER {
       "3c048e58-6bb5-4cba-96cb-e564c046de58": "SUPERBLUM",
       "350501e9-4fe4-4612-b899-b2daa11071fb": "CRYPTOSMART",
       "92373c2b-2bf3-44c0-90f7-a7fd146c05c5": "HAPPYDOGS",
-      "b611352b-0d8c-44ec-8e0f-cd71b5922ca5": "BLUMMERSSS"
+      "b611352b-0d8c-44ec-8e0f-cd71b5922ca5": "BLUMERSSS"
       // Add more task ids and their corresponding answers here
     };
   
