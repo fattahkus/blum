@@ -9,7 +9,9 @@ export class TASKANSWER {
       "350501e9-4fe4-4612-b899-b2daa11071fb": "CRYPTOSMART",
       "92373c2b-2bf3-44c0-90f7-a7fd146c05c5": "HAPPYDOGS",
       "b611352b-0d8c-44ec-8e0f-cd71b5922ca5": "BLUMERSSS",
-      "d2715289-b487-43bc-bc21-18224f8f6bc3": "NODOXXING"
+      "d2715289-b487-43bc-bc21-18224f8f6bc3": "NODOXXING",
+      "c60919cd-0282-46fe-854a-1da0a01db9b2": "blum - big city life",
+      "7067a3db-d9c5-4268-ac19-c393743e8491": "WOWBLUM"
       // Add more task ids and their corresponding answers here
     };
   
