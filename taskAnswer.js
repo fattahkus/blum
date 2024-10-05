@@ -11,7 +11,8 @@ export class TASKANSWER {
       "b611352b-0d8c-44ec-8e0f-cd71b5922ca5": "BLUMERSSS",
       "d2715289-b487-43bc-bc21-18224f8f6bc3": "NODOXXING",
       "c60919cd-0282-46fe-854a-1da0a01db9b2": "blum - big city life",
-      "7067a3db-d9c5-4268-ac19-c393743e8491": "WOWBLUM"
+      "7067a3db-d9c5-4268-ac19-c393743e8491": "WOWBLUM",
+      "1572a605-d714-4f2c-8045-9c5f874d9c7e": "MEMEBLUM"
       // Add more task ids and their corresponding answers here
     };
   
