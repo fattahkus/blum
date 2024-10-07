@@ -766,8 +766,8 @@ const collectTasks = (data) => {
                                             const targetTask = parseFloat(element.progressTarget.target)
                                             if(progressTask >= targetTask){
                                               // console.log("PROGRESS_TARGET :",element)
-                                              await delay(500)
                                               const startTasks = await startTask(bearerRefresh,idTask,randomUserAgent)
+                                              await delay(500)
                                               if(!startTasks.message){
                                                 if(startTasks.status === 'READY_FOR_CLAIM'){
                                                   await delay(500)
@@ -792,8 +792,8 @@ const collectTasks = (data) => {
                                             }
                                           }else if(statusTask === 'NOT_STARTED' && typeTask !== 'PROGRESS_TARGET'){
                                             // console.log("NOT_PROGRESS_TARGET :",element)
-                                              await delay(500)
                                               const startTasks = await startTask(bearerRefresh,idTask,randomUserAgent)
+                                              await delay(500)
                                               if(!startTasks.message){
                                                 if(startTasks.status === 'READY_FOR_CLAIM'){
                                                   await delay(500)
@@ -872,6 +872,7 @@ const collectTasks = (data) => {
                                               // console.log("validateTasks :",validateTasks)
                                               if(!validateTasks.message){
                                                 if(validateTasks === "READY_FOR_CLAIM"){
+                                                  await delay(500)
                                                   const claimTasks = await claimTask(bearerRefresh,idTask,randomUserAgent)
                                                   // console.log("READY_FOR_VERIFY :",claimTasks)
                                                     if(claimTasks.type === 'SOCIAL_SUBSCRIPTION'){
